@@ -131,6 +131,7 @@ export default function EmpresaFormScreen() {
               locating={gps.locating}
               error={gps.error}
               onRefresh={() => gps.capture(true)}
+              onClear={gps.clear}
             />
             <TextField
               label="Endereço (opcional)"

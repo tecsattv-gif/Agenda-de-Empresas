@@ -8,14 +8,16 @@ import {
   MapTrifold,
   Phone,
   Plus,
+  Trash,
 } from "phosphor-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Linking, Pressable, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { confirmarApagarCoords } from "@/src/components/PlaceCoords";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
-import { Empresa, linkMapa, useEmpresas } from "@/src/utils/empresas";
+import { Empresa, linkMapa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
 import { gerarRelatorioPdf } from "@/src/utils/relatorio";
 
 const semAcento = (s: string) =>
@@ -72,6 +74,19 @@ export default function EmpresasScreen() {
         <Pressable style={styles.linha} onPress={() => Linking.openURL(linkMapa(item))} hitSlop={6}>
           <MapPin size={15} color={colors.brandPrimary} weight="fill" />
           <Text style={styles.link}>{`${item.lat}, ${item.lng}`}</Text>
+          <Pressable
+            hitSlop={10}
+            onPress={() =>
+              confirmarApagarCoords(() =>
+                salvarEmpresa(
+                  { nome: item.nome, endereco: item.endereco, telefone: item.telefone, lat: "", lng: "" },
+                  item.id,
+                ),
+              )
+            }
+          >
+            <Trash size={16} color={colors.error} weight="bold" />
+          </Pressable>
         </Pressable>
       ) : null}
       {item.endereco ? (
