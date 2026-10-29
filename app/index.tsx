@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import {
   Buildings,
+  CloudArrowUp,
   FilePdf,
   MagnifyingGlass,
   MapPin,
@@ -120,6 +121,7 @@ export default function EmpresasScreen() {
             style={styles.buscaInput}
           />
         </View>
+        <View style={styles.botoes}>
         <Pressable style={styles.pdfBtn} onPress={relatorio} disabled={gerando}>
           {gerando ? (
             <ActivityIndicator size="small" color={colors.brandPrimary} />
@@ -128,6 +130,11 @@ export default function EmpresasScreen() {
           )}
           <Text style={styles.pdfText}>Relatório PDF</Text>
         </Pressable>
+        <Pressable style={styles.pdfBtn} onPress={() => router.push("/backup")}>
+          <CloudArrowUp size={18} color={colors.brandPrimary} weight="bold" />
+          <Text style={styles.pdfText}>Backup</Text>
+        </Pressable>
+        </View>
         {aviso ? <Text style={styles.aviso}>{aviso}</Text> : null}
       </ScreenHeader>
 
@@ -185,12 +192,12 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 15,
     color: colors.onSurface,
   },
+  botoes: { flexDirection: "row", gap: 10, marginTop: 10 },
   pdfBtn: {
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
     gap: 8,
-    marginTop: 10,
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 8,

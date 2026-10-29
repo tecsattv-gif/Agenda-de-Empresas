@@ -79,3 +79,15 @@ export async function apagarEmpresa(id: string) {
 export function linkMapa(e: { lat: string; lng: string }): string {
   return `https://www.google.com/maps/search/?api=1&query=${e.lat},${e.lng}`;
 }
+
+/** Lista atual (para o backup). */
+export async function todasEmpresas(): Promise<Empresa[]> {
+  await carregar();
+  return lista;
+}
+
+/** Troca todas as empresas pelas do backup. */
+export async function substituirEmpresas(nova: Empresa[]) {
+  await carregar();
+  await gravar(nova);
+}
