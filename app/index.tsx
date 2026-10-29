@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { confirmarApagarCoords } from "@/src/components/PlaceCoords";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
+import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { Empresa, linkMapa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
 import { gerarRelatorioPdf } from "@/src/utils/relatorio";
@@ -78,12 +79,13 @@ export default function EmpresasScreen() {
           <Pressable
             hitSlop={10}
             onPress={() =>
-              confirmarApagarCoords(() =>
-                salvarEmpresa(
-                  { nome: item.nome, endereco: item.endereco, telefone: item.telefone, lat: "", lng: "" },
-                  item.id,
-                ),
-              )
+              confirmarApagarCoords(async () => {
+                const base = { nome: item.nome, endereco: item.endereco, telefone: item.telefone };
+                await salvarEmpresa({ ...base, lat: "", lng: "" }, item.id);
+                mostrarDesfazer(`Coordenadas de "${item.nome}" apagadas`, () =>
+                  salvarEmpresa({ ...base, lat: item.lat, lng: item.lng }, item.id),
+                );
+              })
             }
           >
             <Trash size={16} color={colors.error} weight="bold" />

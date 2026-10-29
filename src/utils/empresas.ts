@@ -71,9 +71,19 @@ export async function salvarEmpresa(dados: Omit<Empresa, "id" | "criado_em">, id
   }
 }
 
-export async function apagarEmpresa(id: string) {
+/** Apaga e devolve a empresa apagada (para poder desfazer). */
+export async function apagarEmpresa(id: string): Promise<Empresa | undefined> {
   await carregar();
+  const removida = lista.find((e) => e.id === id);
   await gravar(lista.filter((e) => e.id !== id));
+  return removida;
+}
+
+/** Coloca de volta uma empresa apagada (Desfazer). */
+export async function restaurarEmpresa(e: Empresa) {
+  await carregar();
+  if (lista.some((x) => x.id === e.id)) return;
+  await gravar([...lista, e]);
 }
 
 export function linkMapa(e: { lat: string; lng: string }): string {

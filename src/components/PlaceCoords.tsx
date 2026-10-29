@@ -120,10 +120,10 @@ const useStyles = makeStyles((colors) => ({
 // Confirmação antes de apagar as coordenadas.
 export function confirmarApagarCoords(onConfirm: () => void) {
   if (Platform.OS === "web") {
-    if (typeof window !== "undefined" && window.confirm("Apagar as coordenadas?")) onConfirm();
+    if (typeof window !== "undefined" && window.confirm("Tem certeza que deseja apagar as coordenadas?")) onConfirm();
     return;
   }
-  Alert.alert("Apagar coordenadas", "Apagar as coordenadas desta empresa?", [
+  Alert.alert("Apagar coordenadas", "Tem certeza que deseja apagar as coordenadas desta empresa?", [
     { text: "Cancelar", style: "cancel" },
     { text: "Apagar", style: "destructive", onPress: onConfirm },
   ]);

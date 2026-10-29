@@ -5,6 +5,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "rea
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fonts, makeStyles, useTheme } from "@/src/theme";
+import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { escolherBackup, fazerBackup, restaurarBackup } from "@/src/utils/backup";
 import { useEmpresas } from "@/src/utils/empresas";
 
@@ -41,15 +42,20 @@ export default function BackupScreen() {
       if (!lista) return;
       Alert.alert(
         "Restaurar backup",
-        `O backup tem ${lista.length} empresa(s).\n\nAs ${empresas.length} empresa(s) que estão agora no telefone serão substituídas. Continuar?`,
+        `O backup tem ${lista.length} empresa(s).\n\nAs ${empresas.length} empresa(s) que estão agora no telefone serão substituídas. Tem certeza?`,
         [
           { text: "Cancelar", style: "cancel" },
           {
             text: "Restaurar",
             style: "destructive",
             onPress: async () => {
+              const antes = [...empresas];
               await restaurarBackup(lista);
               setOk(`Backup restaurado: ${lista.length} empresa(s).`);
+              mostrarDesfazer("Backup restaurado", async () => {
+                await restaurarBackup(antes);
+                setOk("Restauração desfeita: as empresas anteriores voltaram.");
+              });
             },
           },
         ],

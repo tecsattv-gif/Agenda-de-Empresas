@@ -8,8 +8,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { TextField } from "@/src/components/TextField";
+import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
-import { apagarEmpresa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
+import { apagarEmpresa, restaurarEmpresa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
 
 export default function EmpresaFormScreen() {
   const styles = useStyles();
@@ -71,14 +72,17 @@ export default function EmpresaFormScreen() {
 
   const apagar = () => {
     if (!editId) return;
-    Alert.alert("Apagar empresa", `Apagar "${nome || "esta empresa"}"?`, [
+    Alert.alert("Apagar empresa", `Tem certeza que deseja apagar "${nome || "esta empresa"}"?`, [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Apagar",
         style: "destructive",
         onPress: async () => {
-          await apagarEmpresa(editId);
+          const removida = await apagarEmpresa(editId);
           router.back();
+          if (removida) {
+            mostrarDesfazer(`Empresa "${removida.nome}" apagada`, () => restaurarEmpresa(removida));
+          }
         },
       },
     ]);
@@ -131,7 +135,11 @@ export default function EmpresaFormScreen() {
               locating={gps.locating}
               error={gps.error}
               onRefresh={() => gps.capture(true)}
-              onClear={gps.clear}
+              onClear={() => {
+                const antes = gps.coords;
+                gps.clear();
+                mostrarDesfazer("Coordenadas apagadas", () => gps.setCoords(antes));
+              }}
             />
             <TextField
               label="Endereço (opcional)"
