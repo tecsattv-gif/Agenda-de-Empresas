@@ -55,12 +55,12 @@ export function AppSplash({ onFinish }: { onFinish: () => void }) {
           resizeMode="contain"
         />
         <Text style={styles.title}>AGENDA DE EMPRESAS</Text>
-        <Text style={styles.subtitle}>Empresas • Endereços • Telefones • Coordenadas</Text>
+        <Text style={styles.subtitle}>Empresas • Parks • Postos • Coordenadas</Text>
         <View style={styles.about}>
           <Text style={styles.aboutApp}>Agenda de Empresas</Text>
           <Text style={styles.aboutLine}>Desenvolvido por: Luiz Alberto Cardoso</Text>
           <Text style={styles.aboutLine}>E-mail: tecsattv@gmail.com</Text>
-          <Text style={styles.aboutLine}>Versão: 1.0.0</Text>
+          <Text style={styles.aboutLine}>Versão: 1.1.0</Text>
         </View>
       </Animated.View>
 

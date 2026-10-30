@@ -8,6 +8,7 @@ import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { escolherBackup, fazerBackup, restaurarBackup } from "@/src/utils/backup";
 import { useEmpresas } from "@/src/utils/empresas";
+import { useLocais } from "@/src/utils/locais";
 
 export default function BackupScreen() {
   const styles = useStyles();
@@ -15,6 +16,7 @@ export default function BackupScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { empresas } = useEmpresas();
+  const { locais } = useLocais();
   const [ocupado, setOcupado] = useState<"" | "fazer" | "restaurar">("");
   const [ok, setOk] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -25,7 +27,9 @@ export default function BackupScreen() {
     setOcupado("fazer");
     try {
       const n = await fazerBackup();
-      setOk(`Backup gerado com ${n} empresa(s). Guarde o arquivo no Google Drive, e-mail ou WhatsApp.`);
+      setOk(
+        `Backup gerado com ${n.empresas} empresa(s) e ${n.locais} park(s)/posto(s). Guarde o arquivo no Google Drive, e-mail ou WhatsApp.`,
+      );
     } catch (e: any) {
       setErro(e?.message || "Não foi possível fazer o backup.");
     } finally {
@@ -38,23 +42,30 @@ export default function BackupScreen() {
     setErro(null);
     setOcupado("restaurar");
     try {
-      const lista = await escolherBackup();
-      if (!lista) return;
+      const dados = await escolherBackup();
+      if (!dados) return;
+      const temLocais = dados.locais !== null;
+      const doBackup = temLocais
+        ? `${dados.empresas.length} empresa(s) e ${dados.locais!.length} park(s)/posto(s)`
+        : `${dados.empresas.length} empresa(s)`;
+      const doTelefone = temLocais
+        ? `${empresas.length} empresa(s) e ${locais.length} park(s)/posto(s)`
+        : `${empresas.length} empresa(s)`;
       Alert.alert(
         "Restaurar backup",
-        `O backup tem ${lista.length} empresa(s).\n\nAs ${empresas.length} empresa(s) que estão agora no telefone serão substituídas. Tem certeza?`,
+        `O backup tem ${doBackup}.\n\n${doTelefone} que estão agora no telefone serão substituídos. Tem certeza?`,
         [
           { text: "Cancelar", style: "cancel" },
           {
             text: "Restaurar",
             style: "destructive",
             onPress: async () => {
-              const antes = [...empresas];
-              await restaurarBackup(lista);
-              setOk(`Backup restaurado: ${lista.length} empresa(s).`);
+              const antes = { empresas: [...empresas], locais: [...locais] };
+              await restaurarBackup(dados);
+              setOk(`Backup restaurado: ${doBackup}.`);
               mostrarDesfazer("Backup restaurado", async () => {
                 await restaurarBackup(antes);
-                setOk("Restauração desfeita: as empresas anteriores voltaram.");
+                setOk("Restauração desfeita: os dados anteriores voltaram.");
               });
             },
           },
@@ -78,7 +89,7 @@ export default function BackupScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.texto}>
-          O backup é um arquivo com todas as empresas (nome, endereço, telefone e coordenadas). Guarde-o fora do
+          O backup é um arquivo com todas as empresas e todos os parks/postos (com as coordenadas). Guarde-o fora do
           telefone para não perder os dados ao trocar de celular ou reinstalar o app.
         </Text>
 
@@ -104,7 +115,7 @@ export default function BackupScreen() {
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Fazer backup</Text>
             <Text style={styles.cardSub}>
-              Gera o arquivo com {empresas.length} empresa(s) e abre o Compartilhar.
+              Gera o arquivo com {empresas.length} empresa(s) e {locais.length} park(s)/posto(s) e abre o Compartilhar.
             </Text>
           </View>
         </Pressable>
@@ -117,7 +128,7 @@ export default function BackupScreen() {
           )}
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Restaurar backup</Text>
-            <Text style={styles.cardSub}>Escolha o arquivo de backup. As empresas atuais serão substituídas.</Text>
+            <Text style={styles.cardSub}>Escolha o arquivo de backup. Os dados atuais serão substituídos.</Text>
           </View>
         </Pressable>
       </ScrollView>

@@ -13,7 +13,6 @@ import {
 } from "phosphor-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Linking, Pressable, Text, TextInput, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { confirmarApagarCoords } from "@/src/components/PlaceCoords";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
@@ -29,7 +28,6 @@ const semAcento = (s: string) =>
 export default function EmpresasScreen() {
   const styles = useStyles();
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { empresas, carregando } = useEmpresas();
   const [busca, setBusca] = useState("");
@@ -117,7 +115,7 @@ export default function EmpresasScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader
-        title="Agenda de Empresas"
+        title="Empresas"
         subtitle={`${empresas.length} empresa(s) cadastrada(s)`}
       >
         <View style={styles.buscaBox}>
@@ -156,7 +154,7 @@ export default function EmpresasScreen() {
           data={filtradas}
           keyExtractor={(e) => e.id}
           renderItem={renderItem}
-          contentContainerStyle={[styles.lista, { paddingBottom: insets.bottom + 100 }]}
+          contentContainerStyle={[styles.lista, { paddingBottom: 100 }]}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={
             <View style={styles.vazio}>
@@ -170,7 +168,7 @@ export default function EmpresasScreen() {
       )}
 
       <Pressable
-        style={[styles.fab, { bottom: insets.bottom + 20 }]}
+        style={[styles.fab, { bottom: 16 }]}
         onPress={() => router.push("/empresa-form")}
         accessibilityRole="button"
       >
