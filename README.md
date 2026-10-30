@@ -5,6 +5,7 @@ App Android para guardar os contatos das empresas: **nome, endereço, telefone e
 ## Funções
 - **Lista de empresas** em ordem alfabética, com busca por nome, endereço ou telefone (ignora acentos).
   - Tocar no telefone faz a ligação; tocar no endereço ou nas coordenadas abre o Google Maps.
+- **Arrastar para apagar**: na lista, arraste a empresa para o lado para revelar o botão vermelho **Apagar** (igual ao Controle de Viagens); tocar no cartão abre a edição ("Toque para editar").
 - **Cadastro**: só o **Nome** é obrigatório; Endereço e Telefone são opcionais.
   - Ao tocar no campo Nome, o app pega o GPS e mostra a linha 📍 com as coordenadas logo abaixo do nome.
   - ↻ busca as coordenadas de novo; 🗑 apaga (depois de apagar, só o ↻ volta a buscar).
@@ -24,6 +25,7 @@ App Android para guardar os contatos das empresas: **nome, endereço, telefone e
 | `src/utils/relatorio.ts` | Relatório PDF |
 | `src/utils/backup.ts` | Arquivo de backup |
 | `src/components/PlaceCoords.tsx` | Linha 📍 das coordenadas (GPS, ↻ e 🗑) |
+| `src/components/SwipeableRow.tsx` | Cartão com arrastar para apagar |
 | `src/components/UndoBar.tsx` | Barra "Desfazer" de 8 segundos |
 | `src/components/AppSplash.tsx` | Tela Splash |
 | `src/theme.ts` | Cores e fontes (as mesmas do Controle de Viagens) |

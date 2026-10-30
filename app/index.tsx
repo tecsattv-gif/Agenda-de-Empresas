@@ -17,9 +17,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { confirmarApagarCoords } from "@/src/components/PlaceCoords";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
+import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
-import { Empresa, linkMapa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
+import { apagarEmpresa, Empresa, linkMapa, restaurarEmpresa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
 import { gerarRelatorioPdf } from "@/src/utils/relatorio";
 
 const semAcento = (s: string) =>
@@ -67,9 +68,15 @@ export default function EmpresasScreen() {
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(end)}`);
 
   const renderItem = ({ item }: { item: Empresa }) => (
-    <Pressable
-      style={styles.card}
-      onPress={() => router.push({ pathname: "/empresa-form", params: { id: item.id } })}
+    <SwipeableRow
+      onEdit={() => router.push({ pathname: "/empresa-form", params: { id: item.id } })}
+      onDelete={async () => {
+        const removida = await apagarEmpresa(item.id);
+        if (removida) {
+          mostrarDesfazer(`Empresa "${removida.nome}" apagada`, () => restaurarEmpresa(removida));
+        }
+      }}
+      deleteMessage={`Tem certeza que deseja apagar "${item.nome}"?`}
     >
       <Text style={styles.nome}>{item.nome}</Text>
       {item.lat && item.lng ? (
@@ -104,7 +111,7 @@ export default function EmpresasScreen() {
           <Text style={styles.info}>{item.telefone}</Text>
         </Pressable>
       ) : null}
-    </Pressable>
+    </SwipeableRow>
   );
 
   return (
