@@ -6,10 +6,10 @@ export type Regiao = "europa" | "eua" | "brasil";
 
 export type Bandeira = { nome: string; cor: string };
 
-export const REGIOES: { id: Regiao; nome: string }[] = [
-  { id: "europa", nome: "Postos da Europa" },
-  { id: "eua", nome: "Postos dos EUA" },
-  { id: "brasil", nome: "Postos do Brasil" },
+export const REGIOES: { id: Regiao; nome: string; flag: string }[] = [
+  { id: "europa", nome: "Europa", flag: "🇪🇺" },
+  { id: "eua", nome: "EUA", flag: "🇺🇸" },
+  { id: "brasil", nome: "Brasil", flag: "🇧🇷" },
 ];
 
 export const BANDEIRAS: Record<Regiao, Bandeira[]> = {

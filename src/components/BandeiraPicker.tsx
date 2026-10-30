@@ -54,6 +54,7 @@ export function BandeiraPicker({ visible, atual, onClose, onSelect }: Props) {
                   onPress={() => setRegiao(r.id)}
                   accessibilityRole="tab"
                 >
+                  <Text style={styles.flag}>{r.flag}</Text>
                   <Text style={[styles.regiaoText, on && { color: colors.onBrandPrimary }]}>{r.nome}</Text>
                 </Pressable>
               );
@@ -144,7 +145,8 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.surfaceTertiary,
   },
   regiaoOn: { backgroundColor: colors.brandPrimary, borderColor: colors.brandPrimary },
-  regiaoText: { fontFamily: fonts.displaySemiBold, fontSize: 14, textAlign: "center", color: colors.onSurface },
+  flag: { fontSize: 20 },
+  regiaoText: { fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.onSurface },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
   tile: {
     width: "31.5%",
