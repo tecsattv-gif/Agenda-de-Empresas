@@ -60,7 +60,7 @@ export function AppSplash({ onFinish }: { onFinish: () => void }) {
           <Text style={styles.aboutApp}>Empresas e Parks</Text>
           <Text style={styles.aboutLine}>Desenvolvido por: Luiz Alberto Cardoso</Text>
           <Text style={styles.aboutLine}>E-mail: tecsattv@gmail.com</Text>
-          <Text style={styles.aboutLine}>Versão: 1.1.0</Text>
+          <Text style={styles.aboutLine}>Versão: 1.2.0</Text>
         </View>
       </Animated.View>
 
