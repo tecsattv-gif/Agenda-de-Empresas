@@ -8,7 +8,7 @@ App Android para guardar os contatos das empresas: **nome, endereço, telefone e
 - **Arrastar para apagar**: na lista, arraste a empresa para o lado para revelar o botão vermelho **Apagar** (igual ao Controle de Viagens); tocar no cartão abre a edição ("Toque para editar").
 - **Cadastro**: só o **Nome** é obrigatório; Endereço e Telefone são opcionais.
   - Ao tocar no campo Nome, o app pega o GPS e mostra a linha 📍 com as coordenadas logo abaixo do nome.
-  - ↻ busca as coordenadas de novo; 🗑 apaga (depois de apagar, só o ↻ volta a buscar).
+  - 🗑 apaga as coordenadas. Enquanto houver coordenadas, a setinha ↻ fica escondida (não dá para atualizar); ela só aparece quando a empresa está sem coordenadas — por exemplo, depois de apagar — e aí busca o GPS de novo.
 - **Relatório PDF (A4)**: uma ficha por empresa com o total no fim. Campos não preenchidos não aparecem. Compartilha por WhatsApp, e-mail, Drive etc. Respeita a busca: se houver filtro, sai só o que está na lista.
 - **Backup**: gera um arquivo `.json` com todas as empresas pelo Compartilhar; **Restaurar backup** escolhe o arquivo e substitui as empresas do telefone.
 - **Apagar com segurança**: tudo que apaga (empresa, coordenadas, restauração de backup) pergunta "Tem certeza?" e depois mostra **Desfazer** por 8 segundos.
