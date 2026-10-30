@@ -1,4 +1,4 @@
-// Pop-up para escolher a bandeira do posto (Europa, EUA, Brasil).
+// Pop-up para escolher a bandeira (rede) do posto: Shell, BP, Petrobras, Ipiranga...
 import { Check, X } from "phosphor-react-native";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
@@ -54,7 +54,6 @@ export function BandeiraPicker({ visible, atual, onClose, onSelect }: Props) {
                   onPress={() => setRegiao(r.id)}
                   accessibilityRole="tab"
                 >
-                  <Text style={styles.flag}>{r.flag}</Text>
                   <Text style={[styles.regiaoText, on && { color: colors.onBrandPrimary }]}>{r.nome}</Text>
                 </Pressable>
               );
@@ -70,7 +69,7 @@ export function BandeiraPicker({ visible, atual, onClose, onSelect }: Props) {
                   style={[styles.tile, on && styles.tileOn]}
                   onPress={() => onSelect(b.nome)}
                 >
-                  <BandeiraIcon cor={b.cor} size={40} />
+                  <BandeiraIcon nome={b.nome} size={44} />
                   <Text style={styles.tileText} numberOfLines={2}>
                     {b.nome}
                   </Text>
@@ -145,8 +144,7 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.surfaceTertiary,
   },
   regiaoOn: { backgroundColor: colors.brandPrimary, borderColor: colors.brandPrimary },
-  flag: { fontSize: 20 },
-  regiaoText: { fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.onSurface },
+  regiaoText: { fontFamily: fonts.displaySemiBold, fontSize: 14, textAlign: "center", color: colors.onSurface },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
   tile: {
     width: "31.5%",

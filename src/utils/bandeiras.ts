@@ -1,14 +1,15 @@
-// Bandeiras (redes) de postos de combustível, por região.
-// Cada bandeira é mostrada como um ícone de bomba na cor da rede + o nome.
+// Bandeiras (redes) de postos de combustível, agrupadas pela região onde atuam.
+// Cada bandeira aparece como um selo na cor da rede com a sigla dela
+// (não são os logotipos oficiais, que são marcas registradas).
 
 export type Regiao = "europa" | "eua" | "brasil";
 
 export type Bandeira = { nome: string; cor: string };
 
-export const REGIOES: { id: Regiao; nome: string; flag: string }[] = [
-  { id: "europa", nome: "Europa", flag: "🇪🇺" },
-  { id: "eua", nome: "EUA", flag: "🇺🇸" },
-  { id: "brasil", nome: "Brasil", flag: "🇧🇷" },
+export const REGIOES: { id: Regiao; nome: string }[] = [
+  { id: "europa", nome: "Postos da Europa" },
+  { id: "eua", nome: "Postos dos EUA" },
+  { id: "brasil", nome: "Postos do Brasil" },
 ];
 
 export const BANDEIRAS: Record<Regiao, Bandeira[]> = {
@@ -72,6 +73,31 @@ export const BANDEIRAS: Record<Regiao, Bandeira[]> = {
     { nome: "Bandeira branca", cor: "#9E9E9E" },
   ],
 };
+
+// Siglas que não saem bem pela regra automática.
+const SIGLAS: Record<string, string> = {
+  TotalEnergies: "TOTAL",
+  "Moeve (Cepsa)": "MOEVE",
+  "Eni / Agip": "ENI",
+  "Circle K": "CK",
+  "Phillips 66": "P66",
+  "Pilot Flying J": "PFJ",
+  "TA / Petro": "TA",
+  "Love's": "LOVE'S",
+  "Casey's": "CASEY",
+  Petrobras: "BR",
+  "Bandeira branca": "BB",
+};
+
+/** Sigla curta escrita dentro do selo da bandeira. */
+export function siglaBandeira(nome: string): string {
+  if (SIGLAS[nome]) return SIGLAS[nome];
+  const n = nome.trim();
+  const palavras = n.split(/\s+/);
+  if (palavras.length === 1 && n.length <= 8) return n.toUpperCase();
+  if (palavras.length > 1) return palavras.map((p) => p[0]).join("").slice(0, 4).toUpperCase();
+  return n.slice(0, 8).toUpperCase();
+}
 
 /** Cor do ícone de uma bandeira gravada (cinza se for "Outra"). */
 export function corBandeira(nome: string): string {

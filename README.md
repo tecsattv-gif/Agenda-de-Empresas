@@ -7,7 +7,7 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
 - **Resumo**: total de cadastros, cartões com o número de Empresas, Parks e Postos (tocar abre a aba), atalhos **Nova empresa** e **Park/Posto**, quantos têm coordenadas GPS, **Postos por bandeira**, **Relatório geral PDF** (as duas abas juntas) e **Backup**. Embaixo, **Todos os cadastros**: as duas abas juntas numa lista só, em ordem alfabética, com busca e coordenadas embaixo do nome; tocar abre a edição.
 - **Park/Posto**: mesmo padrão da aba Empresas.
   - Campos: **Nome** (obrigatório, com a linha 📍 das coordenadas embaixo), **Tipo** (seletor **Park** ou **Posto**, obrigatório) e **Referência de localidade** (opcional).
-  - Ao escolher **Posto**, abre o pop-up das **bandeiras**, separado em 🇪🇺 Europa, 🇺🇸 EUA e 🇧🇷 Brasil (Shell, BP, Galp, Repsol, Petrobras, Ipiranga, Love's, Pilot Flying J…), com opção **Outra bandeira** digitada. Cada bandeira aparece como uma bomba na cor da rede; Park aparece como um "P" azul.
+  - Ao escolher **Posto**, abre o pop-up das **bandeiras dos postos** (as redes: Shell, BP, Galp, Repsol, Petrobras, Ipiranga, Love's, Pilot Flying J…), separadas em Postos da Europa, dos EUA e do Brasil, com opção **Outra bandeira** digitada. Cada bandeira aparece como um selo na cor da rede com a sigla dela (ex.: SHELL, BP, BR, GALP); Park aparece como um "P" azul.
   - Lista com busca, filtro Todos / Parks / Postos, arrastar para apagar, Desfazer e **Relatório PDF** (só o que estiver filtrado).
 - **Lista de empresas** em ordem alfabética, com busca por nome, endereço ou telefone (ignora acentos).
   - Tocar no telefone faz a ligação; tocar no endereço ou nas coordenadas abre o Google Maps.

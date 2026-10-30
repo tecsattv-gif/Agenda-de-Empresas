@@ -1,13 +1,12 @@
-import { GasPump } from "phosphor-react-native";
 import { Text, View } from "react-native";
 
-import { fonts } from "@/src/theme";
-import { corBandeira } from "@/src/utils/bandeiras";
+import { contrastOn, fonts } from "@/src/theme";
+import { corBandeira, siglaBandeira } from "@/src/utils/bandeiras";
 import { TipoLocal } from "@/src/utils/locais";
 
 const AZUL_PARK = "#1565C0";
 
-/** Ícone quadrado: "P" azul para Park, bomba na cor da bandeira para Posto. */
+/** Ícone quadrado: "P" azul para Park, selo da bandeira (cor + sigla) para Posto. */
 export function LocalIcon({ tipo, bandeira, size = 30 }: { tipo: TipoLocal; bandeira?: string; size?: number }) {
   const box = { width: size, height: size, borderRadius: size * 0.22, alignItems: "center", justifyContent: "center" } as const;
   if (tipo === "park") {
@@ -19,11 +18,15 @@ export function LocalIcon({ tipo, bandeira, size = 30 }: { tipo: TipoLocal; band
       </View>
     );
   }
-  return <BandeiraIcon cor={bandeira ? corBandeira(bandeira) : "#9E9E9E"} size={size} />;
+  return <BandeiraIcon nome={bandeira || ""} size={size} />;
 }
 
-/** Bomba de combustível branca sobre a cor da bandeira. */
-export function BandeiraIcon({ cor, size = 30 }: { cor: string; size?: number }) {
+/** Selo da bandeira do posto: a cor da rede com a sigla (ex.: SHELL, BP, BR, IPIRANGA). */
+export function BandeiraIcon({ nome, size = 30 }: { nome: string; size?: number }) {
+  const cor = nome ? corBandeira(nome) : "#9E9E9E";
+  const sigla = nome ? siglaBandeira(nome) : "?";
+  // Fonte encolhe conforme o tamanho da sigla para caber no quadrado.
+  const fonte = size * (sigla.length <= 2 ? 0.48 : sigla.length <= 3 ? 0.4 : sigla.length <= 5 ? 0.3 : sigla.length <= 6 ? 0.25 : 0.2);
   return (
     <View
       style={{
@@ -33,9 +36,15 @@ export function BandeiraIcon({ cor, size = 30 }: { cor: string; size?: number })
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: cor,
+        paddingHorizontal: 2,
       }}
     >
-      <GasPump size={size * 0.62} color="#FFFFFF" weight="fill" />
+      <Text
+        numberOfLines={1}
+        style={{ fontFamily: fonts.displayBold, fontSize: fonte, lineHeight: fonte * 1.15, color: contrastOn(cor) }}
+      >
+        {sigla}
+      </Text>
     </View>
   );
 }
