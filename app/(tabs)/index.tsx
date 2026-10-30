@@ -146,11 +146,11 @@ export default function ResumoScreen() {
         <View style={styles.heroContent}>
           <View style={styles.heroTopRow}>
             <NotePencil size={22} color={colors.brandPrimary} weight="fill" />
-            <Text style={styles.heroBrand}>AGENDA DE EMPRESAS</Text>
+            <Text style={styles.heroBrand}>EMPRESAS E PARKS</Text>
           </View>
           <Text style={styles.heroLabel}>RESUMO</Text>
           <Text style={[styles.heroValue, { fontSize: heroFontSize(String(total)) }]}>{total}</Text>
-          <Text style={styles.heroCaption}>cadastros na agenda</Text>
+          <Text style={styles.heroCaption}>cadastros no total</Text>
         </View>
 
         {/* Números de cada aba */}

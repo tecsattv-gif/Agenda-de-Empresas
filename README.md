@@ -1,4 +1,6 @@
-# Agenda de Empresas — versão 1.1.0
+# Empresas e Parks — versão 1.2.0
+
+> Antes chamado **Agenda de Empresas**. Só mudou o nome que aparece no celular: o pacote Android continua o mesmo, então a nova versão instala por cima da antiga sem perder dados, e os backups antigos continuam a ser restaurados.
 
 App Android para guardar os contatos das empresas (**nome, endereço, telefone e coordenadas GPS**) e os **parks e postos** de combustível. Feito com Expo / React Native, com o mesmo visual do Controle de Viagens (tema escuro, laranja, fontes Barlow Condensed e DM Sans). Os dados ficam **só no telefone**: sem conta e sem servidor.
 
@@ -16,7 +18,10 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
   - Ao tocar no campo Nome, o app pega o GPS e mostra a linha 📍 com as coordenadas logo abaixo do nome.
   - 🗑 apaga as coordenadas. Enquanto houver coordenadas, a setinha ↻ fica escondida (não dá para atualizar); ela só aparece quando a empresa está sem coordenadas — por exemplo, depois de apagar — e aí busca o GPS de novo.
 - **Relatório PDF (A4)**: uma ficha por empresa com o total no fim. Campos não preenchidos não aparecem. Compartilha por WhatsApp, e-mail, Drive etc. Respeita a busca: se houver filtro, sai só o que está na lista.
-- **Backup**: gera um arquivo `.json` com todas as empresas e parks/postos pelo Compartilhar; **Restaurar backup** escolhe o arquivo e substitui os dados do telefone. Backups antigos (só empresas) continuam a funcionar e não mexem nos parks/postos.
+- **Backup** (igual ao Controle de Viagens): arquivo `.json` com todas as empresas e parks/postos.
+  - **Salvar backup no telefone** (Android): na primeira vez escolhe uma pasta (ex.: Download); depois grava sempre `agenda-empresas-backup.json` nela, **substituindo o backup anterior** (não acumula arquivos). **Trocar pasta** escolhe outra.
+  - **Enviar backup**: abre o Compartilhar (Drive, WhatsApp, e-mail).
+  - **Restaurar backup** escolhe o arquivo e substitui os dados do telefone. Backups antigos (só empresas) continuam a funcionar e não mexem nos parks/postos.
 - **Apagar com segurança**: tudo que apaga (empresa, park/posto, coordenadas, restauração de backup) pergunta "Tem certeza?" e depois mostra **Desfazer** por 8 segundos.
 - **Splash** com a logo (fundo transparente), nome, créditos e barra de carregamento.
 
@@ -30,12 +35,12 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
 | `app/(tabs)/locais.tsx` | Lista de parks/postos, busca, filtro e Relatório PDF |
 | `app/empresa-form.tsx` | Cadastro/edição/exclusão da empresa |
 | `app/local-form.tsx` | Cadastro/edição/exclusão do park/posto |
-| `app/backup.tsx` | Fazer e restaurar backup |
+| `app/backup.tsx` | Salvar no telefone, enviar e restaurar backup |
 | `src/utils/empresas.ts` | Dados das empresas (AsyncStorage) |
 | `src/utils/locais.ts` | Dados dos parks/postos (AsyncStorage) |
 | `src/utils/bandeiras.ts` | Lista de bandeiras de postos (Europa, EUA, Brasil) |
 | `src/utils/relatorio.ts` | Relatórios PDF (Empresas, Park/Posto e Geral) |
-| `src/utils/backup.ts` | Arquivo de backup |
+| `src/utils/backup.ts` | Arquivo de backup (pasta fixa do telefone e Compartilhar) |
 | `src/components/PlaceCoords.tsx` | Linha 📍 das coordenadas (GPS, ↻ e 🗑) |
 | `src/components/BandeiraPicker.tsx` | Pop-up das bandeiras |
 | `src/components/LocalIcon.tsx` | Ícone do Park ("P") e do Posto (bomba na cor da bandeira) |

@@ -64,7 +64,7 @@ async function gerar(titulo: string, corpo: string): Promise<string> {
 }
 
 export function gerarRelatorioPdf(empresas: Empresa[]): Promise<string> {
-  return gerar("AGENDA DE EMPRESAS", empresas.map(blocoEmpresa).join("") + total("Total de empresas", empresas.length));
+  return gerar("EMPRESAS E PARKS", empresas.map(blocoEmpresa).join("") + total("Total de empresas", empresas.length));
 }
 
 export function gerarRelatorioLocaisPdf(locais: Local[]): Promise<string> {
@@ -86,5 +86,5 @@ export function gerarRelatorioGeralPdf(empresas: Empresa[], locais: Local[]): Pr
   if (!corpo) corpo = `<div class="vazio">Nenhum cadastro.</div>`;
   corpo +=
     total("Empresas", empresas.length) + total("Parks", parks) + total("Postos", locais.length - parks);
-  return gerar("AGENDA DE EMPRESAS — RESUMO", corpo);
+  return gerar("EMPRESAS E PARKS — RESUMO", corpo);
 }

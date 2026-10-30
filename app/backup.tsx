@@ -1,12 +1,18 @@
 import { useRouter } from "expo-router";
-import { CheckCircle, CloudArrowDown, CloudArrowUp, Warning, X } from "phosphor-react-native";
-import { useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { CheckCircle, CloudArrowDown, CloudArrowUp, FolderSimple, Warning, X } from "phosphor-react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
-import { escolherBackup, fazerBackup, restaurarBackup } from "@/src/utils/backup";
+import {
+  escolherBackup,
+  fazerBackup,
+  nomePastaBackup,
+  restaurarBackup,
+  salvarBackupNoTelefone,
+} from "@/src/utils/backup";
 import { useEmpresas } from "@/src/utils/empresas";
 import { useLocais } from "@/src/utils/locais";
 
@@ -17,9 +23,33 @@ export default function BackupScreen() {
   const router = useRouter();
   const { empresas } = useEmpresas();
   const { locais } = useLocais();
-  const [ocupado, setOcupado] = useState<"" | "fazer" | "restaurar">("");
+  const [ocupado, setOcupado] = useState<"" | "fazer" | "restaurar" | "pasta">("");
   const [ok, setOk] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [nomePasta, setNomePasta] = useState("");
+
+  useEffect(() => {
+    nomePastaBackup().then(setNomePasta);
+  }, []);
+
+  // Grava na pasta escolhida do telefone, substituindo o backup anterior.
+  const salvarNoTelefone = async (escolherNova = false) => {
+    setOk(null);
+    setErro(null);
+    setOcupado("pasta");
+    try {
+      const r = await salvarBackupNoTelefone(escolherNova);
+      if (!r) return;
+      setNomePasta(r.pasta);
+      setOk(
+        `Backup salvo na pasta "${r.pasta}" com ${r.empresas} empresa(s) e ${r.locais} park(s)/posto(s). O backup anterior foi substituído.`,
+      );
+    } catch (e: any) {
+      setErro(e?.message || "Não foi possível salvar o backup.");
+    } finally {
+      setOcupado("");
+    }
+  };
 
   const fazer = async () => {
     setOk(null);
@@ -27,9 +57,7 @@ export default function BackupScreen() {
     setOcupado("fazer");
     try {
       const n = await fazerBackup();
-      setOk(
-        `Backup gerado com ${n.empresas} empresa(s) e ${n.locais} park(s)/posto(s). Guarde o arquivo no Google Drive, e-mail ou WhatsApp.`,
-      );
+      setOk(`Backup enviado com ${n.empresas} empresa(s) e ${n.locais} park(s)/posto(s).`);
     } catch (e: any) {
       setErro(e?.message || "Não foi possível fazer o backup.");
     } finally {
@@ -89,8 +117,9 @@ export default function BackupScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.texto}>
-          O backup é um arquivo com todas as empresas e todos os parks/postos (com as coordenadas). Guarde-o fora do
-          telefone para não perder os dados ao trocar de celular ou reinstalar o app.
+          O backup é um arquivo com todas as empresas e todos os parks/postos (com as coordenadas). Salve no telefone
+          (substitui o anterior) e, se quiser, envie também para o Google Drive, e-mail ou WhatsApp. Se trocar ou
+          perder o telefone, é com ele que recupera tudo.
         </Text>
 
         {ok ? (
@@ -106,6 +135,31 @@ export default function BackupScreen() {
           </View>
         ) : null}
 
+        {Platform.OS === "android" ? (
+          <View>
+            <Pressable style={styles.card} onPress={() => salvarNoTelefone(false)} disabled={!!ocupado}>
+              {ocupado === "pasta" ? (
+                <ActivityIndicator color={colors.brandPrimary} />
+              ) : (
+                <FolderSimple size={30} color={colors.brandPrimary} weight="bold" />
+              )}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>Salvar backup no telefone</Text>
+                <Text style={styles.cardSub}>
+                  {nomePasta
+                    ? `Salva na pasta "${nomePasta}" do telefone e substitui o backup anterior`
+                    : "Na primeira vez escolha uma pasta do telefone (ex.: Download); depois o backup é salvo nela, sempre substituindo o anterior"}
+                </Text>
+              </View>
+            </Pressable>
+            {nomePasta ? (
+              <Pressable onPress={() => salvarNoTelefone(true)} disabled={!!ocupado} hitSlop={8} style={styles.trocarPasta}>
+                <Text style={styles.trocarPastaText}>Trocar pasta</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
+
         <Pressable style={styles.card} onPress={fazer} disabled={!!ocupado}>
           {ocupado === "fazer" ? (
             <ActivityIndicator color={colors.brandPrimary} />
@@ -113,9 +167,10 @@ export default function BackupScreen() {
             <CloudArrowUp size={30} color={colors.brandPrimary} weight="bold" />
           )}
           <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>Fazer backup</Text>
+            <Text style={styles.cardTitle}>Enviar backup</Text>
             <Text style={styles.cardSub}>
-              Gera o arquivo com {empresas.length} empresa(s) e {locais.length} park(s)/posto(s) e abre o Compartilhar.
+              Abre as opções para mandar o arquivo ({empresas.length} empresa(s) e {locais.length} park(s)/posto(s)) ao
+              Drive, WhatsApp ou e-mail. O Google Drive guarda uma cópia nova a cada envio: apague as antigas lá no Drive.
             </Text>
           </View>
         </Pressable>
@@ -172,6 +227,8 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: 12,
     padding: 16,
   },
+  trocarPasta: { alignSelf: "flex-end", marginTop: 6, marginBottom: 2 },
+  trocarPastaText: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
   cardTitle: { fontFamily: fonts.displayBold, fontSize: 20, color: colors.onSurface },
   cardSub: { fontFamily: fonts.body, fontSize: 13, color: colors.muted, marginTop: 2 },
 }));
