@@ -7,6 +7,7 @@ import {
   MagnifyingGlass,
   MapPin,
   MapTrifold,
+  NavigationArrow,
   Phone,
   Plus,
   Trash,
@@ -20,6 +21,7 @@ import { SwipeableRow } from "@/src/components/SwipeableRow";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { apagarEmpresa, Empresa, linkMapa, restaurarEmpresa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
+import { textoDistancia, useMinhaPosicao } from "@/src/utils/distancia";
 import { gerarRelatorioPdf } from "@/src/utils/relatorio";
 
 const semAcento = (s: string) =>
@@ -30,6 +32,7 @@ export default function EmpresasScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { empresas, carregando } = useEmpresas();
+  const minha = useMinhaPosicao();
   const [busca, setBusca] = useState("");
   const [gerando, setGerando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -97,6 +100,15 @@ export default function EmpresasScreen() {
           </Pressable>
         </Pressable>
       ) : null}
+      {(() => {
+        const d = textoDistancia(minha, item);
+        return d ? (
+          <View style={styles.linha}>
+            <NavigationArrow size={15} color={colors.brandPrimary} weight="fill" />
+            <Text style={styles.dist}>{d}</Text>
+          </View>
+        ) : null;
+      })()}
       {item.endereco ? (
         <Pressable style={styles.linha} onPress={() => abrirEndereco(item.endereco)} hitSlop={6}>
           <MapTrifold size={15} color={colors.muted} />
@@ -226,6 +238,7 @@ const useStyles = makeStyles((colors) => ({
   },
   nome: { fontFamily: fonts.displayBold, fontSize: 20, color: colors.onSurface, letterSpacing: 0.3 },
   linha: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  dist: { flex: 1, fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.brandPrimary },
   info: { flex: 1, fontFamily: fonts.body, fontSize: 14, color: colors.onSurfaceSecondary },
   link: {
     flex: 1,

@@ -10,6 +10,7 @@ import {
   GasPump,
   MagnifyingGlass,
   MapPin,
+  NavigationArrow,
   NotePencil,
   Plus,
 } from "phosphor-react-native";
@@ -22,6 +23,7 @@ import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { corBandeira } from "@/src/utils/bandeiras";
 import { linkMapa, useEmpresas } from "@/src/utils/empresas";
 import { NOME_TIPO, TipoLocal, useLocais } from "@/src/utils/locais";
+import { textoDistancia, useMinhaPosicao } from "@/src/utils/distancia";
 import { gerarRelatorioGeralPdf } from "@/src/utils/relatorio";
 
 const semAcento = (s: string) =>
@@ -52,6 +54,7 @@ export default function ResumoScreen() {
   const router = useRouter();
   const { empresas, carregando: c1 } = useEmpresas();
   const { locais, carregando: c2 } = useLocais();
+  const minha = useMinhaPosicao();
   const [busca, setBusca] = useState("");
   const [gerando, setGerando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -255,6 +258,15 @@ export default function ResumoScreen() {
                     <Text style={styles.link}>{`${i.lat}, ${i.lng}`}</Text>
                   </Pressable>
                 ) : null}
+                {(() => {
+                  const d = textoDistancia(minha, i);
+                  return d ? (
+                    <View style={styles.distRow}>
+                      <NavigationArrow size={13} color={colors.brandPrimary} weight="fill" />
+                      <Text style={styles.dist}>{d}</Text>
+                    </View>
+                  ) : null;
+                })()}
                 <Text style={styles.itemDet} numberOfLines={1}>
                   {i.tipo === "empresa" ? "Empresa" : NOME_TIPO[i.tipo]}
                   {i.detalhe ? ` · ${i.detalhe}` : ""}
@@ -414,6 +426,8 @@ const useStyles = makeStyles((colors) => ({
   },
   itemNome: { fontFamily: fonts.displayBold, fontSize: 18, color: colors.onSurface },
   itemDet: { fontFamily: fonts.body, fontSize: 12, color: colors.muted },
+  distRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  dist: { fontFamily: fonts.displaySemiBold, fontSize: 14, color: colors.brandPrimary },
   link: { fontFamily: fonts.body, fontSize: 12, color: colors.brandPrimary, textDecorationLine: "underline" },
   emptyBox: {
     padding: 16,

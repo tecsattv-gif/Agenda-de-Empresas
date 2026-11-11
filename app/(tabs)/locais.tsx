@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
-import { FilePdf, GasPump, MagnifyingGlass, MapPin, MapTrifold, Plus, Trash } from "phosphor-react-native";
+import { FilePdf, GasPump, MagnifyingGlass, MapPin, MapTrifold, NavigationArrow, Plus, Trash } from "phosphor-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Linking, Pressable, Text, TextInput, View } from "react-native";
 
@@ -12,6 +12,7 @@ import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { linkMapa } from "@/src/utils/empresas";
 import { apagarLocal, Local, NOME_TIPO, restaurarLocal, salvarLocal, TipoLocal, useLocais } from "@/src/utils/locais";
+import { textoDistancia, useMinhaPosicao } from "@/src/utils/distancia";
 import { gerarRelatorioLocaisPdf } from "@/src/utils/relatorio";
 
 const semAcento = (s: string) =>
@@ -24,6 +25,7 @@ export default function LocaisScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { locais, carregando } = useLocais();
+  const minha = useMinhaPosicao();
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [gerando, setGerando] = useState(false);
@@ -96,6 +98,15 @@ export default function LocaisScreen() {
           </Pressable>
         </Pressable>
       ) : null}
+      {(() => {
+        const d = textoDistancia(minha, item);
+        return d ? (
+          <View style={styles.linha}>
+            <NavigationArrow size={15} color={colors.brandPrimary} weight="fill" />
+            <Text style={styles.dist}>{d}</Text>
+          </View>
+        ) : null;
+      })()}
       <View style={styles.linha}>
         <GasPump size={15} color={colors.muted} />
         <Text style={styles.info}>
@@ -226,6 +237,7 @@ const useStyles = makeStyles((colors) => ({
   nomeRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   nome: { flex: 1, fontFamily: fonts.displayBold, fontSize: 20, color: colors.onSurface, letterSpacing: 0.3 },
   linha: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  dist: { flex: 1, fontFamily: fonts.displaySemiBold, fontSize: 16, color: colors.brandPrimary },
   info: { flex: 1, fontFamily: fonts.body, fontSize: 14, color: colors.onSurfaceSecondary },
   link: { flex: 1, fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
   vazio: { alignItems: "center", gap: 12, paddingTop: 60 },

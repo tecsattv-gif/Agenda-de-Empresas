@@ -1,4 +1,4 @@
-# Empresas e Parks — versão 1.2.0
+# Empresas e Parks — versão 1.3.0
 
 > Antes chamado **Agenda de Empresas**. Só mudou o nome que aparece no celular: o pacote Android continua o mesmo, então a nova versão instala por cima da antiga sem perder dados, e os backups antigos continuam a ser restaurados.
 
@@ -11,6 +11,7 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
   - Campos: **Nome** (obrigatório, com a linha 📍 das coordenadas embaixo), **Tipo** (seletor **Park** ou **Posto**, obrigatório) e **Referência de localidade** (opcional).
   - Ao escolher **Posto**, abre o pop-up das **bandeiras dos postos** (as redes: Shell, BP, Galp, Repsol, Petrobras, Ipiranga, Love's, Pilot Flying J…), separadas nas abas 🇪🇺 Europa, 🇺🇸 EUA e 🇧🇷 Brasil, com opção **Outra bandeira** digitada. Cada bandeira aparece como um selo na cor da rede com a sigla dela (ex.: SHELL, BP, BR, GALP); Park aparece como um "P" azul.
   - Lista com busca, filtro Todos / Parks / Postos, arrastar para apagar, Desfazer e **Relatório PDF** (só o que estiver filtrado).
+- **Distância até você** (nova na 1.3.0): em cada cartão com coordenadas aparece a linha laranja ➤ **"12,4 km de você"** — nas abas Empresas, Park/Posto e na lista do Resumo. É a distância **em linha reta** (não pela estrada) e se atualiza sozinha conforme você anda (a cada ~50 m). O GPS só fica ligado enquanto uma dessas telas está aberta, para poupar bateria. Sem GPS ou sem coordenadas no cadastro, a linha não aparece.
 - **Lista de empresas** em ordem alfabética, com busca por nome, endereço ou telefone (ignora acentos).
   - Tocar no telefone faz a ligação; tocar no endereço ou nas coordenadas abre o Google Maps.
 - **Arrastar para apagar**: na lista, arraste a empresa para o lado para revelar o botão vermelho **Apagar** (igual ao Controle de Viagens); tocar no cartão abre a edição ("Toque para editar").
@@ -40,6 +41,7 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
 | `src/utils/locais.ts` | Dados dos parks/postos (AsyncStorage) |
 | `src/utils/bandeiras.ts` | Lista de bandeiras de postos (Europa, EUA, Brasil) |
 | `src/utils/relatorio.ts` | Relatórios PDF (Empresas, Park/Posto e Geral) |
+| `src/utils/distancia.ts` | Posição atual do GPS e distância até cada cadastro |
 | `src/utils/backup.ts` | Arquivo de backup (pasta fixa do telefone e Compartilhar) |
 | `src/components/PlaceCoords.tsx` | Linha 📍 das coordenadas (GPS, ↻ e 🗑) |
 | `src/components/BandeiraPicker.tsx` | Pop-up das bandeiras |
