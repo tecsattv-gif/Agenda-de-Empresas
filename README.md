@@ -1,4 +1,4 @@
-# Empresas e Parks — versão 1.4.0
+# Empresas e Parks — versão 1.4.1
 
 > Antes chamado **Agenda de Empresas**. Só mudou o nome que aparece no celular: o pacote Android continua o mesmo, então a nova versão instala por cima da antiga sem perder dados, e os backups antigos continuam a ser restaurados.
 
@@ -62,6 +62,18 @@ Cada build publica o APK numa **Release** `build-<número>`; o número também v
 
 - O repositório precisa continuar **público**: o app consulta o GitHub sem login.
 - A primeira versão com essa função (1.4.0) precisa ser instalada à mão (Releases ou Actions). Daí em diante o app se atualiza sozinho.
+
+## Assinatura do APK (chave de release)
+Desde a **1.4.1** o APK é assinado com uma **chave de release própria**, e não mais com a chave de teste pública do Expo. Com a chave de teste, o Google Play Protect bloqueava a instalação ("App nocivo bloqueado"), porque o app também tem permissão para instalar atualizações.
+
+- A chave fica nos **Secrets** do GitHub (Settings → Secrets and variables → Actions):
+  - `ANDROID_KEYSTORE_BASE64`: o arquivo `empresasparks-release.jks` em Base64
+  - `ANDROID_KEYSTORE_PASSWORD`: a senha da chave (alias `empresasparks`)
+- Sem esses Secrets o build **para com erro** de propósito, para nunca publicar um APK com outra assinatura.
+- O build confere se o APK saiu assinado com a chave certa.
+- ⚠️ **Guarde uma cópia do `.jks` e da senha fora do GitHub.** Se a chave se perder, as próximas versões não instalam por cima: vai ser preciso desinstalar e instalar de novo.
+- **Mudança da 1.4.0 para a 1.4.1:** como a assinatura mudou, a 1.4.1 não instala por cima da 1.4.0 (nem pela atualização do app). Faça **Backup → Salvar**, desinstale, instale a 1.4.1 e **Restaurar backup**. Só é preciso fazer isso uma vez.
+- Se o Play Protect ainda avisar, dá para enviar o APK para análise do Google como falso positivo.
 
 ## Lançar uma nova versão
 Suba `version` no `app.json` (1.4.0 → 1.5.0…). A tela Splash e o Backup mostram essa versão automaticamente, e o número do build muda sozinho a cada compilação.

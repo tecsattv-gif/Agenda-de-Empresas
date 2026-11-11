@@ -26,7 +26,7 @@ export function installedBuild(): number {
 
 /** Versão do app (app.json → version), ex.: "1.4.0". Sobe a cada mudança. */
 export function appVersion(): string {
-  return Constants.expoConfig?.version || "1.4.0";
+  return Constants.expoConfig?.version || "1.4.1";
 }
 
 async function latest(): Promise<UpdateInfo | null> {
