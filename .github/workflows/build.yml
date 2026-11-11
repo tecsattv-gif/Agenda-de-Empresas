@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write   # publicar a Release que o app usa para se atualizar
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +22,19 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      # Número do build: o app compara com a última Release para saber se
+      # há atualização. Vai em app.json → extra.buildNumber e no versionCode.
+      - name: Gravar número do build
+        run: |
+          node -e '
+            const fs = require("fs");
+            const app = JSON.parse(fs.readFileSync("app.json"));
+            const n = Number(process.env.GITHUB_RUN_NUMBER || 0);
+            app.expo.extra = { ...(app.expo.extra || {}), buildNumber: n };
+            app.expo.android.versionCode = n;
+            fs.writeFileSync("app.json", JSON.stringify(app, null, 2));
+          '
 
       - name: Instalar dependências
         run: npm install --legacy-peer-deps --no-audit --no-fund
@@ -39,3 +54,16 @@ jobs:
         with:
           name: agenda-empresas-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+
+      # Publica o APK numa Release (build-<número>). O app procura a última
+      # Release para avisar que há atualização e instalar com 1 toque.
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk EmpresasParks.apk
+          TAG="build-${GITHUB_RUN_NUMBER}"
+          VER=$(node -p 'require("./app.json").expo.version')
+          gh release create "$TAG" EmpresasParks.apk \
+            --repo "$GITHUB_REPOSITORY" --title "Empresas e Parks ${VER}" \
+            --notes "Veja as novidades no README." --latest

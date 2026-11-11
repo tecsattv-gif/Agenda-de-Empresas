@@ -11,6 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppSplash } from "@/src/components/AppSplash";
 import { TabletFrame } from "@/src/components/TabletFrame";
 import { UndoBar } from "@/src/components/UndoBar";
+import { UpdateChecker } from "@/src/components/UpdateChecker";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,6 +43,7 @@ export default function RootLayout() {
             <TabletFrame>
               <Stack screenOptions={{ headerShown: false }} />
               <UndoBar />
+              <UpdateChecker />
             </TabletFrame>
           )}
         </SafeAreaProvider>

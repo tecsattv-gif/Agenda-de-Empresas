@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
-import { CheckCircle, CloudArrowDown, CloudArrowUp, FolderSimple, Warning, X } from "phosphor-react-native";
+import { ArrowsClockwise, CheckCircle, CloudArrowDown, CloudArrowUp, FolderSimple, Warning, X } from "phosphor-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
+import { appVersion, checkForUpdateManual } from "@/src/components/UpdateChecker";
 import {
   escolherBackup,
   fazerBackup,
@@ -23,7 +24,7 @@ export default function BackupScreen() {
   const router = useRouter();
   const { empresas } = useEmpresas();
   const { locais } = useLocais();
-  const [ocupado, setOcupado] = useState<"" | "fazer" | "restaurar" | "pasta">("");
+  const [ocupado, setOcupado] = useState<"" | "fazer" | "restaurar" | "pasta" | "atualizar">("");
   const [ok, setOk] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [nomePasta, setNomePasta] = useState("");
@@ -186,6 +187,33 @@ export default function BackupScreen() {
             <Text style={styles.cardSub}>Escolha o arquivo de backup. Os dados atuais serão substituídos.</Text>
           </View>
         </Pressable>
+
+        {Platform.OS === "android" ? (
+          <Pressable
+            style={styles.card}
+            onPress={async () => {
+              setOcupado("atualizar");
+              try {
+                await checkForUpdateManual();
+              } finally {
+                setOcupado("");
+              }
+            }}
+            disabled={!!ocupado}
+          >
+            {ocupado === "atualizar" ? (
+              <ActivityIndicator color={colors.brandPrimary} />
+            ) : (
+              <ArrowsClockwise size={30} color={colors.brandPrimary} weight="bold" />
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardTitle}>Procurar atualização do app</Text>
+              <Text style={styles.cardSub}>
+                Você está na versão {appVersion()}. O app também verifica sozinho ao abrir e avisa quando houver versão nova.
+              </Text>
+            </View>
+          </Pressable>
+        ) : null}
       </ScrollView>
     </View>
   );

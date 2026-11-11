@@ -1,4 +1,4 @@
-# Empresas e Parks — versão 1.3.0
+# Empresas e Parks — versão 1.4.0
 
 > Antes chamado **Agenda de Empresas**. Só mudou o nome que aparece no celular: o pacote Android continua o mesmo, então a nova versão instala por cima da antiga sem perder dados, e os backups antigos continuam a ser restaurados.
 
@@ -11,6 +11,7 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
   - Campos: **Nome** (obrigatório, com a linha 📍 das coordenadas embaixo), **Tipo** (seletor **Park** ou **Posto**, obrigatório) e **Referência de localidade** (opcional).
   - Ao escolher **Posto**, abre o pop-up das **bandeiras dos postos** (as redes: Shell, BP, Galp, Repsol, Petrobras, Ipiranga, Love's, Pilot Flying J…), separadas nas abas 🇪🇺 Europa, 🇺🇸 EUA e 🇧🇷 Brasil, com opção **Outra bandeira** digitada. Cada bandeira aparece como um selo na cor da rede com a sigla dela (ex.: SHELL, BP, BR, GALP); Park aparece como um "P" azul.
   - Lista com busca, filtro Todos / Parks / Postos, arrastar para apagar, Desfazer e **Relatório PDF** (só o que estiver filtrado).
+- **Atualização pelo próprio app** (nova na 1.4.0): ao abrir (no máximo a cada 6 h) o app pergunta ao GitHub se há versão nova e mostra **"Nova versão do Empresas e Parks — Atualizar / Agora não"**. **Atualizar** baixa o APK e abre o instalador do Android (na 1ª vez o Android pede para liberar **Instalar apps desconhecidos**). "Agora não" não pergunta de novo pela mesma versão. Em **Backup → Procurar atualização do app** dá para verificar na hora. Os dados ficam no telefone e continuam depois da atualização.
 - **Distância até você** (nova na 1.3.0): em cada cartão com coordenadas aparece a linha laranja ➤ **"12,4 km de você"** — nas abas Empresas, Park/Posto e na lista do Resumo. É a distância **em linha reta** (não pela estrada) e se atualiza sozinha conforme você anda (a cada ~50 m). O GPS só fica ligado enquanto uma dessas telas está aberta, para poupar bateria. Sem GPS ou sem coordenadas no cadastro, a linha não aparece.
 - **Lista de empresas** em ordem alfabética, com busca por nome, endereço ou telefone (ignora acentos).
   - Tocar no telefone faz a ligação; tocar no endereço ou nas coordenadas abre o Google Maps.
@@ -49,14 +50,21 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
 | `src/components/SwipeableRow.tsx` | Cartão com arrastar para apagar |
 | `src/components/UndoBar.tsx` | Barra "Desfazer" de 8 segundos |
 | `src/components/AppSplash.tsx` | Tela Splash |
+| `src/components/UpdateChecker.tsx` | Atualização pelo próprio app (aviso, download e instalador) |
 | `src/theme.ts` | Cores e fontes (as mesmas do Controle de Viagens) |
 | `assets/images/` | Ícone, logo da Splash (fundo transparente) |
 
 ## Gerar o APK
-O GitHub Actions (`.github/workflows/build.yml`) compila a cada envio para `main`. Baixe em **Actions → execução → artefato `agenda-empresas-apk`** (cerca de 20 minutos).
+O GitHub Actions (`.github/workflows/build.yml`) compila a cada envio para `main`. Leva cerca de 20 minutos. O APK fica em **Releases** (o mais novo é o "Latest") e também em **Actions → execução → artefato `agenda-empresas-apk`**.
+
+## Atualização pelo próprio app
+Cada build publica o APK numa **Release** `build-<número>`; o número também vai para o app em `extra.buildNumber` e no `versionCode`. O app compara esse número com o da última Release para saber se há atualização. O título da Release leva a versão (ex.: "Empresas e Parks 1.4.0"), que aparece no aviso.
+
+- O repositório precisa continuar **público**: o app consulta o GitHub sem login.
+- A primeira versão com essa função (1.4.0) precisa ser instalada à mão (Releases ou Actions). Daí em diante o app se atualiza sozinho.
 
 ## Lançar uma nova versão
-Atualize `version` no `app.json` e o texto `Versão:` em `src/components/AppSplash.tsx`.
+Suba `version` no `app.json` (1.4.0 → 1.5.0…). A tela Splash e o Backup mostram essa versão automaticamente, e o número do build muda sozinho a cada compilação.
 
 ## Autor
 **Luiz Alberto Cardoso** · tecsattv@gmail.com
