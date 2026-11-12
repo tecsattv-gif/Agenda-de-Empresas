@@ -63,8 +63,17 @@ jobs:
           KEYSTORE_PASSWORD=$(printf '%s' "$KEYSTORE_PASSWORD" | tr -d ' \n\r\t')
           echo "$KEYSTORE_B64" | tr -d ' \n\r' | base64 -d > android/app/release.jks
           # Confere a senha já aqui, antes dos ~17 min de compilação.
-          keytool -list -keystore android/app/release.jks -storetype pkcs12 -storepass "$KEYSTORE_PASSWORD" > /dev/null \
-            || { echo "::error::Senha da chave errada: confira o Secret ANDROID_KEYSTORE_PASSWORD (deve ser igual ao senha-chave.txt)"; exit 1; }
+          # Diz qual dos dois Secrets está errado (sem mostrar a senha nem a chave).
+          TAM=$(stat -c%s android/app/release.jks)
+          LEN=${#KEYSTORE_PASSWORD}
+          if ! SAIDA=$(keytool -list -keystore android/app/release.jks -storetype pkcs12 -storepass "$KEYSTORE_PASSWORD" 2>&1); then
+            if echo "$SAIDA" | grep -q "password was incorrect"; then
+              echo "::error::Senha da chave errada: o Secret ANDROID_KEYSTORE_PASSWORD chegou com ${LEN} caracteres e não abre a chave (deve ser igual ao senha-chave.txt). O arquivo da chave está inteiro (${TAM} bytes)."
+            else
+              echo "::error::Arquivo da chave incompleto ou alterado: o Secret ANDROID_KEYSTORE_BASE64 virou um arquivo de ${TAM} bytes que não abre. Cole de novo o texto Base64 inteiro."
+            fi
+            exit 1
+          fi
           {
             echo ""
             echo "EMPRESAS_STORE_PASSWORD=$KEYSTORE_PASSWORD"

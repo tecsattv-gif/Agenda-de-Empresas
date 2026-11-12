@@ -71,6 +71,7 @@ Desde a **1.4.1** o APK é assinado com uma **chave de release própria**, e nã
   - `ANDROID_KEYSTORE_PASSWORD`: a senha da chave (alias `empresasparks`)
 - Sem esses Secrets o build **para com erro** de propósito, para nunca publicar um APK com outra assinatura.
 - O build confere se o APK saiu assinado com a chave certa.
+- Se um dos Secrets estiver errado, o build para em 1 minuto e diz **qual** deles: a senha (`ANDROID_KEYSTORE_PASSWORD`) ou o arquivo da chave (`ANDROID_KEYSTORE_BASE64`).
 - ⚠️ **Guarde uma cópia do `.jks` e da senha fora do GitHub.** Se a chave se perder, as próximas versões não instalam por cima: vai ser preciso desinstalar e instalar de novo.
 - **Mudança da 1.4.0 para a 1.4.1:** como a assinatura mudou, a 1.4.1 não instala por cima da 1.4.0 (nem pela atualização do app). Faça **Backup → Salvar**, desinstale, instale a 1.4.1 e **Restaurar backup**. Só é preciso fazer isso uma vez.
 - Se o Play Protect ainda avisar, dá para enviar o APK para análise do Google como falso positivo.
