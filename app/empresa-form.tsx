@@ -10,6 +10,7 @@ import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { TextField } from "@/src/components/TextField";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
+import { acharRepetido, perguntarSubstituir } from "@/src/utils/duplicados";
 import { apagarEmpresa, restaurarEmpresa, salvarEmpresa, useEmpresas } from "@/src/utils/empresas";
 
 export default function EmpresaFormScreen() {
@@ -49,18 +50,30 @@ export default function EmpresaFormScreen() {
     }
     setErroNome(undefined);
     setBanner(null);
+    const dados = {
+      nome: nome.trim(),
+      endereco: endereco.trim(),
+      telefone: telefone.trim(),
+      lat: gps.coords.lat,
+      lng: gps.coords.lng,
+    };
+    // Repetido (mesmo nome ou mesmo local): pergunta antes de salvar.
+    const rep = acharRepetido(empresas, dados, editId);
+    if (rep && !(await perguntarSubstituir("uma empresa", rep))) return;
     setSalvando(true);
     try {
-      await salvarEmpresa(
-        {
-          nome: nome.trim(),
-          endereco: endereco.trim(),
-          telefone: telefone.trim(),
-          lat: gps.coords.lat,
-          lng: gps.coords.lng,
-        },
-        editId,
-      );
+      if (rep) {
+        const antiga = rep.item;
+        const editada = editId ? empresas.find((e) => e.id === editId) : undefined;
+        await salvarEmpresa(dados, antiga.id);
+        if (editada) await apagarEmpresa(editada.id);
+        mostrarDesfazer(`Empresa "${antiga.nome}" substituída`, async () => {
+          await salvarEmpresa(antiga, antiga.id);
+          if (editada) await restaurarEmpresa(editada);
+        });
+      } else {
+        await salvarEmpresa(dados, editId);
+      }
       if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.back();
     } catch {
@@ -139,6 +152,11 @@ export default function EmpresaFormScreen() {
                 const antes = gps.coords;
                 gps.clear();
                 mostrarDesfazer("Coordenadas apagadas", () => gps.setCoords(antes));
+              }}
+              onSet={(c) => {
+                const antes = gps.coords;
+                gps.setCoords(c);
+                if (antes.lat && antes.lng) mostrarDesfazer("Coordenadas alteradas", () => gps.setCoords(antes));
               }}
             />
             <TextField

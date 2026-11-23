@@ -1,4 +1,4 @@
-# Empresas e Parks — versão 1.4.1
+# Empresas e Parks — versão 1.5.0
 
 > Antes chamado **Agenda de Empresas**. Só mudou o nome que aparece no celular: o pacote Android continua o mesmo, então a nova versão instala por cima da antiga sem perder dados, e os backups antigos continuam a ser restaurados.
 
@@ -11,6 +11,11 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
   - Campos: **Nome** (obrigatório, com a linha 📍 das coordenadas embaixo), **Tipo** (seletor **Park** ou **Posto**, obrigatório) e **Referência de localidade** (opcional).
   - Ao escolher **Posto**, abre o pop-up das **bandeiras dos postos** (as redes: Shell, BP, Galp, Repsol, Petrobras, Ipiranga, Love's, Pilot Flying J…), separadas nas abas 🇪🇺 Europa, 🇺🇸 EUA e 🇧🇷 Brasil, com opção **Outra bandeira** digitada. Cada bandeira aparece como um selo na cor da rede com a sigla dela (ex.: SHELL, BP, BR, GALP); Park aparece como um "P" azul.
   - Lista com busca, filtro Todos / Parks / Postos, arrastar para apagar, Desfazer e **Relatório PDF** (só o que estiver filtrado).
+- **Escolher o local no mapa e digitar coordenadas** (nova na 1.5.0) — em Empresas, Parks e Postos, logo abaixo da linha 📍:
+  - **Escolher no mapa**: abre o mapa (OpenStreetMap, precisa de internet) no local já gravado ou na sua posição. Arraste o mapa até a mira laranja ficar em cima do lugar (ou toque no lugar), e toque em **Usar este local**. Tem busca por endereço/cidade e o botão ⊕ que volta para a sua posição.
+  - **Digitar coordenadas**: latitude e longitude à mão (ex.: 41.157944 e -8.629105). Pode colar as duas juntas no primeiro campo, como o Google Maps copia ("41.157944, -8.629105"). O app confere se os números são válidos.
+  - Se já havia coordenadas, aparece **Desfazer** por 8 segundos para voltar às anteriores.
+- **Aviso de cadastro repetido** (nova na 1.5.0): ao salvar, se já existir uma empresa (ou um park, ou um posto) com **o mesmo nome** (ignora maiúsculas e acentos) ou **no mesmo local** (coordenadas a menos de 50 m), aparece o pop-up **"Cadastro repetido"** com **Cancelar** e **Substituir**. Substituir troca os dados do cadastro existente pelos novos (não cria outro) e mostra **Desfazer** por 8 segundos. Parks só são comparados com parks e postos só com postos.
 - **Atualização pelo próprio app** (nova na 1.4.0): ao abrir (no máximo a cada 6 h) o app pergunta ao GitHub se há versão nova e mostra **"Nova versão do Empresas e Parks — Atualizar / Agora não"**. **Atualizar** baixa o APK e abre o instalador do Android (na 1ª vez o Android pede para liberar **Instalar apps desconhecidos**). "Agora não" não pergunta de novo pela mesma versão. Em **Backup → Procurar atualização do app** dá para verificar na hora. Os dados ficam no telefone e continuam depois da atualização.
 - **Distância até você** (nova na 1.3.0): em cada cartão com coordenadas aparece a linha laranja ➤ **"12,4 km de você"** — nas abas Empresas, Park/Posto e na lista do Resumo. É a distância **em linha reta** (não pela estrada) e se atualiza sozinha conforme você anda (a cada ~50 m). O GPS só fica ligado enquanto uma dessas telas está aberta, para poupar bateria. Sem GPS ou sem coordenadas no cadastro, a linha não aparece.
 - **Lista de empresas** em ordem alfabética, com busca por nome, endereço ou telefone (ignora acentos).
@@ -44,7 +49,10 @@ App Android para guardar os contatos das empresas (**nome, endereço, telefone e
 | `src/utils/relatorio.ts` | Relatórios PDF (Empresas, Park/Posto e Geral) |
 | `src/utils/distancia.ts` | Posição atual do GPS e distância até cada cadastro |
 | `src/utils/backup.ts` | Arquivo de backup (pasta fixa do telefone e Compartilhar) |
-| `src/components/PlaceCoords.tsx` | Linha 📍 das coordenadas (GPS, ↻ e 🗑) |
+| `src/components/PlaceCoords.tsx` | Linha 📍 das coordenadas (GPS, ↻, 🗑, Escolher no mapa, Digitar coordenadas) |
+| `src/components/MapPicker.tsx` | Mapa para escolher o local (OpenStreetMap num WebView) |
+| `src/components/CoordsManual.tsx` | Pop-up para digitar as coordenadas |
+| `src/utils/duplicados.ts` | Aviso de cadastro repetido (Cancelar / Substituir) |
 | `src/components/BandeiraPicker.tsx` | Pop-up das bandeiras |
 | `src/components/LocalIcon.tsx` | Ícone do Park ("P") e do Posto (bomba na cor da bandeira) |
 | `src/components/SwipeableRow.tsx` | Cartão com arrastar para apagar |

@@ -12,6 +12,7 @@ import { CoordsRow, useCoordsField } from "@/src/components/PlaceCoords";
 import { TextField } from "@/src/components/TextField";
 import { mostrarDesfazer } from "@/src/components/UndoBar";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
+import { acharRepetido, perguntarSubstituir } from "@/src/utils/duplicados";
 import { apagarLocal, NOME_TIPO, restaurarLocal, salvarLocal, TipoLocal, useLocais } from "@/src/utils/locais";
 
 export default function LocalFormScreen() {
@@ -63,19 +64,35 @@ export default function LocalFormScreen() {
       return;
     }
     setBanner(null);
+    const dados = {
+      nome: nome.trim(),
+      tipo,
+      bandeira: tipo === "posto" ? bandeira : "",
+      referencia: referencia.trim(),
+      lat: gps.coords.lat,
+      lng: gps.coords.lng,
+    };
+    // Repetido (mesmo nome ou mesmo local, do mesmo tipo): pergunta antes de salvar.
+    const rep = acharRepetido(
+      locais.filter((l) => l.tipo === tipo),
+      dados,
+      editId,
+    );
+    if (rep && !(await perguntarSubstituir(tipo === "posto" ? "um posto" : "um park", rep))) return;
     setSalvando(true);
     try {
-      await salvarLocal(
-        {
-          nome: nome.trim(),
-          tipo,
-          bandeira: tipo === "posto" ? bandeira : "",
-          referencia: referencia.trim(),
-          lat: gps.coords.lat,
-          lng: gps.coords.lng,
-        },
-        editId,
-      );
+      if (rep) {
+        const antigo = rep.item;
+        const editado = editId ? locais.find((l) => l.id === editId) : undefined;
+        await salvarLocal(dados, antigo.id);
+        if (editado) await apagarLocal(editado.id);
+        mostrarDesfazer(`"${antigo.nome}" substituído`, async () => {
+          await salvarLocal(antigo, antigo.id);
+          if (editado) await restaurarLocal(editado);
+        });
+      } else {
+        await salvarLocal(dados, editId);
+      }
       if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.back();
     } catch {
@@ -156,6 +173,11 @@ export default function LocalFormScreen() {
                 const antes = gps.coords;
                 gps.clear();
                 mostrarDesfazer("Coordenadas apagadas", () => gps.setCoords(antes));
+              }}
+              onSet={(c) => {
+                const antes = gps.coords;
+                gps.setCoords(c);
+                if (antes.lat && antes.lng) mostrarDesfazer("Coordenadas alteradas", () => gps.setCoords(antes));
               }}
             />
 

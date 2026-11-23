@@ -1,8 +1,10 @@
 import * as Location from "expo-location";
-import { ArrowClockwise, MapPin, Trash } from "phosphor-react-native";
+import { ArrowClockwise, MapPin, MapTrifold, PencilSimple, Trash } from "phosphor-react-native";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Linking, Platform, Pressable, Text, View } from "react-native";
 
+import { CoordsManual } from "@/src/components/CoordsManual";
+import { MapPicker } from "@/src/components/MapPicker";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { linkMapa } from "@/src/utils/empresas";
 
@@ -65,15 +67,20 @@ type Props = {
   error: string | null;
   onRefresh: () => void;
   onClear?: () => void;
+  /** Coordenadas escolhidas no mapa ou digitadas à mão. */
+  onSet?: (c: Coords) => void;
 };
 
 // Linha "📍 coordenadas" logo abaixo do campo.
-export function CoordsRow({ coords, locating, error, onRefresh, onClear }: Props) {
+export function CoordsRow({ coords, locating, error, onRefresh, onClear, onSet }: Props) {
   const styles = useStyles();
   const { colors } = useTheme();
   const has = !!(coords.lat && coords.lng);
+  const [mapa, setMapa] = useState(false);
+  const [manual, setManual] = useState(false);
 
   return (
+    <>
     <View style={styles.row}>
       <MapPin size={16} color={colors.brandPrimary} weight="fill" />
       {locating ? (
@@ -102,6 +109,41 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear }: Props
         </Pressable>
       ) : null}
     </View>
+    {onSet && Platform.OS !== "web" ? (
+      <View style={styles.acoes}>
+        <Pressable style={styles.acao} onPress={() => setMapa(true)} disabled={locating}>
+          <MapTrifold size={18} color={colors.brandPrimary} weight="bold" />
+          <Text style={styles.acaoText}>Escolher no mapa</Text>
+        </Pressable>
+        <Pressable style={styles.acao} onPress={() => setManual(true)} disabled={locating}>
+          <PencilSimple size={18} color={colors.brandPrimary} weight="bold" />
+          <Text style={styles.acaoText}>Digitar coordenadas</Text>
+        </Pressable>
+      </View>
+    ) : null}
+    {onSet ? (
+      <>
+        <MapPicker
+          visible={mapa}
+          inicial={coords}
+          onClose={() => setMapa(false)}
+          onSelect={(c) => {
+            setMapa(false);
+            onSet(c);
+          }}
+        />
+        <CoordsManual
+          visible={manual}
+          inicial={coords}
+          onClose={() => setManual(false)}
+          onSelect={(c) => {
+            setManual(false);
+            onSet(c);
+          }}
+        />
+      </>
+    ) : null}
+    </>
   );
 }
 
@@ -112,8 +154,22 @@ const useStyles = makeStyles((colors) => ({
     gap: 8,
     paddingHorizontal: 2,
     marginTop: -4,
-    marginBottom: 12,
+    marginBottom: 8,
   },
+  acoes: { flexDirection: "row", gap: 8, marginBottom: 14 },
+  acao: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    minHeight: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceSecondary,
+  },
+  acaoText: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary },
   text: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
   link: { fontFamily: fonts.body, fontSize: 13, color: colors.brandPrimary, textDecorationLine: "underline" },
 }));
