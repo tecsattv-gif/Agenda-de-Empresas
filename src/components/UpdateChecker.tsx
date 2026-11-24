@@ -13,7 +13,7 @@ import { ActivityIndicator, Alert, Modal, Platform, Text, View } from "react-nat
 
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
-const API = "https://api.github.com/repos/tecsattv-gif/Agenda-de-empresas/releases/latest";
+const API = "https://api.github.com/repos/tecsattv-gif/Agenda-de-Empresas/releases/latest";
 const CHECK_EVERY_MS = 6 * 60 * 60 * 1000; // no máximo a cada 6 h
 
 type UpdateInfo = { build: number; version: string; url: string; size: number };
@@ -62,12 +62,79 @@ async function writeState(s: { last?: number; skipped?: number }) {
 
 let setBusyGlobal: ((v: string | null) => void) | null = null;
 
+const PARTE = 2 * 1048576; // baixa de 2 em 2 MB
+const TENTATIVAS = 6; // por parte, antes de desistir
+
+const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Baixa o APK em partes (Range). Se a internet cair ou ficar lenta (comum nos
+ * dados móveis / roaming), tenta de novo só a parte que falhou, continuando de
+ * onde parou, em vez de começar tudo do zero.
+ */
+async function baixarEmPartes(url: string, dest: File, total: number) {
+  if (dest.exists) dest.delete();
+  dest.create();
+  const h = dest.open();
+  try {
+    let feito = 0;
+    while (feito < total) {
+      const fim = Math.min(feito + PARTE, total) - 1;
+      let bytes: Uint8Array | null = null;
+      let ultimoErro: any = null;
+      for (let t = 1; t <= TENTATIVAS && !bytes; t++) {
+        try {
+          const ctrl = new AbortController();
+          const relogio = setTimeout(() => ctrl.abort(), 60000);
+          try {
+            const r = await fetch(url, { headers: { Range: `bytes=${feito}-${fim}` }, signal: ctrl.signal });
+            if (r.status === 200 && feito === 0 && Number(r.headers.get("content-length")) === total) {
+              // O servidor ignorou o Range e mandou tudo de uma vez.
+              const tudo = new Uint8Array(await r.arrayBuffer());
+              h.offset = 0;
+              h.writeBytes(tudo);
+              return;
+            }
+            if (r.status !== 206) throw new Error(`HTTP ${r.status}`);
+            const b = new Uint8Array(await r.arrayBuffer());
+            if (b.length !== fim - feito + 1) throw new Error("parte incompleta");
+            bytes = b;
+          } finally {
+            clearTimeout(relogio);
+          }
+        } catch (e) {
+          ultimoErro = e;
+          setBusyGlobal?.(
+            `Internet fraca, tentando de novo (${t}/${TENTATIVAS})…\n${Math.floor((feito / total) * 100)}% baixado`,
+          );
+          await esperar(2000 * t);
+        }
+      }
+      if (!bytes) throw ultimoErro ?? new Error("falha no download");
+      h.offset = feito;
+      h.writeBytes(bytes);
+      feito = fim + 1;
+      setBusyGlobal?.(
+        `Baixando a atualização… ${Math.floor((feito / total) * 100)}%\n${(feito / 1048576).toFixed(1)} de ${(total / 1048576).toFixed(1)} MB`,
+      );
+    }
+  } finally {
+    h.close();
+  }
+}
+
 async function install(info: UpdateInfo) {
   setBusyGlobal?.(`Baixando a atualização${info.size ? ` (${Math.round(info.size / 1048576)} MB)` : ""}…`);
   try {
     const dest = new File(Paths.cache, `EmpresasParks-${info.build}.apk`);
-    if (dest.exists) dest.delete();
-    const file = await File.downloadFileAsync(info.url, dest);
+    let file: File;
+    if (info.size > 0) {
+      await baixarEmPartes(info.url, dest, info.size);
+      file = dest;
+    } else {
+      if (dest.exists) dest.delete();
+      file = await File.downloadFileAsync(info.url, dest);
+    }
     setBusyGlobal?.(null);
     // Abre o instalador do Android. Na 1ª vez ele pede para liberar
     // "Instalar apps desconhecidos" para o Empresas e Parks.
@@ -78,7 +145,13 @@ async function install(info: UpdateInfo) {
     });
   } catch (e: any) {
     setBusyGlobal?.(null);
-    Alert.alert("Atualização", `Falha ao baixar ou abrir a atualização. Tente de novo.\n\n${e?.message ?? ""}`);
+    Alert.alert(
+      "Atualização",
+      "Não foi possível baixar a atualização: a internet está muito fraca ou caiu.\n\n" +
+        "Tente de novo quando tiver Wi-Fi ou sinal melhor, ou baixe o APK pelo navegador em:\n" +
+        "github.com/tecsattv-gif/Agenda-de-Empresas/releases/latest" +
+        (e?.message ? `\n\n(${e.message})` : ""),
+    );
   }
 }
 
