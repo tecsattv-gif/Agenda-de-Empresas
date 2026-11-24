@@ -1,12 +1,12 @@
 import * as Location from "expo-location";
-import { ArrowClockwise, MapPin, MapTrifold, PencilSimple, Trash } from "phosphor-react-native";
+import { ArrowClockwise, GoogleLogo, MapPin, PencilSimple, Trash } from "phosphor-react-native";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Linking, Platform, Pressable, Text, View } from "react-native";
 
 import { CoordsManual } from "@/src/components/CoordsManual";
-import { MapPicker } from "@/src/components/MapPicker";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 import { linkMapa } from "@/src/utils/empresas";
+import { escolherNoGoogleMaps } from "@/src/utils/googleMaps";
 
 export type Coords = { lat: string; lng: string };
 
@@ -76,8 +76,20 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, onSet }
   const styles = useStyles();
   const { colors } = useTheme();
   const has = !!(coords.lat && coords.lng);
-  const [mapa, setMapa] = useState(false);
   const [manual, setManual] = useState(false);
+  const [noMaps, setNoMaps] = useState(false);
+
+  const googleMaps = async () => {
+    if (!onSet || noMaps) return;
+    setNoMaps(true);
+    try {
+      const r = await escolherNoGoogleMaps(coords);
+      if (r === "manual") setManual(true);
+      else if (r) onSet(r);
+    } finally {
+      setNoMaps(false);
+    }
+  };
 
   return (
     <>
@@ -111,9 +123,13 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, onSet }
     </View>
     {onSet && Platform.OS !== "web" ? (
       <View style={styles.acoes}>
-        <Pressable style={styles.acao} onPress={() => setMapa(true)} disabled={locating}>
-          <MapTrifold size={18} color={colors.brandPrimary} weight="bold" />
-          <Text style={styles.acaoText}>Escolher no mapa</Text>
+        <Pressable style={styles.acao} onPress={googleMaps} disabled={locating || noMaps}>
+          {noMaps ? (
+            <ActivityIndicator size="small" color={colors.brandPrimary} />
+          ) : (
+            <GoogleLogo size={18} color={colors.brandPrimary} weight="bold" />
+          )}
+          <Text style={styles.acaoText}>Escolher no Google Maps</Text>
         </Pressable>
         <Pressable style={styles.acao} onPress={() => setManual(true)} disabled={locating}>
           <PencilSimple size={18} color={colors.brandPrimary} weight="bold" />
@@ -123,15 +139,6 @@ export function CoordsRow({ coords, locating, error, onRefresh, onClear, onSet }
     ) : null}
     {onSet ? (
       <>
-        <MapPicker
-          visible={mapa}
-          inicial={coords}
-          onClose={() => setMapa(false)}
-          onSelect={(c) => {
-            setMapa(false);
-            onSet(c);
-          }}
-        />
         <CoordsManual
           visible={manual}
           inicial={coords}
